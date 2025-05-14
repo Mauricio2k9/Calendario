@@ -1,0 +1,1589 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Calendario - CRA y Sala de Computación</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2ecc71;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 20px 0;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo i {
+            margin-right: 10px;
+            font-size: 28px;
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .auth-btn {
+            padding: 8px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-btn i {
+            font-size: 14px;
+        }
+
+        .login-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .login-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .register-btn {
+            background-color: white;
+            color: var(--primary);
+            border: 1px solid white;
+        }
+
+        .register-btn:hover {
+            background-color: #f8f9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .auth-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+
+        .auth-btn:hover::after {
+            animation: ripple 1s ease-out;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+
+        .user-info:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .user-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid white;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .tab {
+            padding: 15px 25px;
+            cursor: pointer;
+            text-align: center;
+            flex: 1;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .tab:hover {
+            background-color: #f8f9fa;
+        }
+
+        .tab.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 10px solid var(--primary);
+        }
+
+        .calendar-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            animation: fadeIn 0.5s ease-out;
+            margin-bottom: 30px;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .month-nav {
+            display: flex;
+            align-items: center;
+        }
+
+        .month-nav button {
+            background: var(--light);
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 5px;
+        }
+
+        .month-nav button:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .month-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 0 15px;
+            min-width: 180px;
+            text-align: center;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+        }
+
+        .day-header {
+            text-align: center;
+            font-weight: bold;
+            padding: 10px;
+            background: var(--light);
+            border-radius: 5px;
+        }
+
+        .day-header.weekend {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .calendar-day {
+            border: 1px solid #eee;
+            border-radius: 5px;
+            padding: 10px;
+            min-height: 100px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .calendar-day:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .calendar-day.weekend {
+            background-color: #f5d7d7;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .calendar-day.weekend:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .day-number {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: inline-block;
+            background: var(--light);
+            width: 25px;
+            height: 25px;
+            text-align: center;
+            line-height: 25px;
+            border-radius: 50%;
+        }
+
+        .calendar-day.weekend .day-number {
+            background-color: #f5b7b1;
+        }
+
+        .event {
+            font-size: 12px;
+            padding: 3px 6px;
+            margin: 2px 0;
+            border-radius: 3px;
+            color: white;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .event.cra {
+            background-color: var(--primary);
+        }
+
+        .event.computacion {
+            background-color: var(--secondary);
+        }
+
+        .event.ocupado {
+            background-color: var(--danger);
+        }
+
+        .empty-day {
+            background-color: #f9f9f9;
+            border: 1px dashed #ddd;
+            cursor: default;
+        }
+
+        .today .day-number {
+            background-color: var(--warning);
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            transform: translateY(-20px);
+            animation: slideUp 0.3s ease-out forwards;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: var(--primary);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            color: var(--danger);
+            transform: rotate(90deg);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            outline: none;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: var(--light);
+            margin-right: 10px;
+        }
+
+        .btn-secondary:hover {
+            background-color: #ddd;
+        }
+
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .time-slot {
+            background: var(--light);
+            padding: 8px;
+            text-align: center;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .time-slot:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .time-slot.selected {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .time-slot.occupied {
+            background-color: var(--danger) !important;
+            color: white;
+            cursor: not-allowed;
+            position: relative;
+        }
+
+        .time-slot.occupied::after {
+            content: '✗';
+            margin-left: 5px;
+        }
+
+        .time-slot.occupied.cra {
+            background-color: var(--primary) !important;
+            opacity: 0.7;
+            text-decoration: line-through;
+        }
+
+        .time-slot.occupied.computacion {
+            background-color: var(--secondary) !important;
+            opacity: 0.7;
+            text-decoration: line-through;
+        }
+
+        .room-indicator {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .room-indicator.cra {
+            background-color: var(--primary);
+        }
+
+        .room-indicator.computacion {
+            background-color: var(--secondary);
+        }
+
+        .reservation-item {
+            background: rgba(52, 152, 219, 0.1);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+            transition: all 0.3s ease;
+        }
+
+        .reservation-item:hover {
+            transform: translateX(5px);
+        }
+
+        .reservation-item.computacion {
+            background: rgba(46, 204, 113, 0.1);
+            border-left-color: #2ecc71;
+        }
+
+        .room-title {
+            font-weight: bold;
+            margin-top: 15px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+        }
+
+        .room-title i {
+            margin-right: 8px;
+        }
+
+        .room-title.cra {
+            color: var(--primary);
+        }
+
+        .room-title.computacion {
+            color: var(--secondary);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(20, 20);
+                opacity: 0;
+            }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 768px) {
+            .calendar-grid {
+                grid-template-columns: repeat(7, 1fr);
+                gap: 5px;
+            }
+            
+            .calendar-day {
+                min-height: 80px;
+                padding: 5px;
+                font-size: 12px;
+            }
+            
+            .day-number {
+                width: 20px;
+                height: 20px;
+                line-height: 20px;
+                font-size: 12px;
+            }
+            
+            .event {
+                font-size: 10px;
+                padding: 2px 4px;
+            }
+            
+            .month-nav button {
+                padding: 5px 8px;
+                font-size: 12px;
+            }
+            
+            .month-title {
+                font-size: 16px;
+                min-width: 140px;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab {
+                padding: 12px;
+            }
+            
+            .tab.active::after {
+                display: none;
+            }
+            
+            .time-slots {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .user-actions {
+                gap: 8px;
+            }
+            
+            .auth-btn {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+            
+            .user-info {
+                margin-left: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .calendar-grid {
+                grid-template-columns: repeat(7, 1fr);
+            }
+            
+            .calendar-day {
+                min-height: 60px;
+            }
+            
+            .event {
+                display: none;
+            }
+            
+            .day-number {
+                width: 18px;
+                height: 18px;
+                line-height: 18px;
+                font-size: 10px;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .user-actions {
+                margin-top: 10px;
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .time-slots {
+                grid-template-columns: 1fr;
+            }
+            
+            .auth-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-calendar-alt"></i>
+                    Sistema de Reservas
+                </div>
+                <div class="user-actions">
+                    <a href="#" class="auth-btn login-btn" id="login-btn">
+                        <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+                    </a>
+                    <a href="#" class="auth-btn register-btn" id="register-btn">
+                        <i class="fas fa-user-plus"></i> Registro
+                    </a>
+                    <div class="user-info" id="user-info">
+                        <img src="https://ui-avatars.com/api/?name=Usuario&background=random" alt="Usuario" id="user-avatar">
+                        <span id="username">Usuario</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="calendar">
+                <i class="fas fa-calendar"></i> Calendario
+            </div>
+            <div class="tab" data-tab="reservations">
+                <i class="fas fa-list"></i> Mis Reservas
+            </div>
+            <div class="tab" data-tab="profile">
+                <i class="fas fa-user"></i> Perfil
+            </div>
+        </div>
+
+        <div class="calendar-container" id="calendar-tab">
+            <div class="calendar-header">
+                <div class="month-nav">
+                    <button id="prev-month"><i class="fas fa-chevron-left"></i></button>
+                    <h2 class="month-title">Mayo 2023</h2>
+                    <button id="next-month"><i class="fas fa-chevron-right"></i></button>
+                </div>
+                <div>
+                    <button class="btn btn-primary" id="new-reservation">
+                        <i class="fas fa-plus"></i> Nueva Reserva
+                    </button>
+                </div>
+            </div>
+
+            <div class="calendar-grid">
+                <div class="day-header weekend">Domingo</div>
+                <div class="day-header">Lunes</div>
+                <div class="day-header">Martes</div>
+                <div class="day-header">Miércoles</div>
+                <div class="day-header">Jueves</div>
+                <div class="day-header">Viernes</div>
+                <div class="day-header weekend">Sábado</div>
+
+                <!-- Los días del calendario se generarán con JavaScript -->
+            </div>
+        </div>
+
+        <div class="calendar-container" id="reservations-tab" style="display: none;">
+            <h2>Mis Reservas</h2>
+            <div id="reservations-list">
+                <!-- Las reservas se cargarán aquí con JavaScript -->
+            </div>
+        </div>
+
+        <div class="calendar-container" id="profile-tab" style="display: none;">
+            <h2>Mi Perfil</h2>
+            <div class="profile-info">
+                <!-- La información del perfil se cargará aquí con JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para nueva reserva -->
+    <div class="modal" id="reservation-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Nueva Reserva</h2>
+                <button class="close-btn" id="close-modal">&times;</button>
+            </div>
+            <form id="reservation-form">
+                <div class="form-group">
+                    <label for="room">Sala</label>
+                    <select id="room" required>
+                        <option value="">Seleccione una sala</option>
+                        <option value="cra">CRA</option>
+                        <option value="computacion">Sala de Computación</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="reservation-date">Fecha</label>
+                    <input type="date" id="reservation-date" required>
+                </div>
+                <div class="form-group">
+                    <label>Bloque Horario</label>
+                    <div class="time-slots" id="time-slots-container">
+                        <!-- Bloques horarios se generarán dinámicamente -->
+                    </div>
+                    <input type="hidden" id="selected-time" required>
+                </div>
+                <div class="form-group">
+                    <label for="course">Curso</label>
+                    <input type="text" id="course" placeholder="Ingrese el curso" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-reservation">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Reservar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para ver horarios del día -->
+    <div class="modal" id="day-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="day-modal-title">Horarios del Día</h2>
+                <button class="close-btn" id="close-day-modal">&times;</button>
+            </div>
+            <div id="day-modal-content">
+                <!-- Contenido se generará dinámicamente -->
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-primary" id="close-day-modal-btn">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Login -->
+    <div class="modal" id="login-modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2>Iniciar Sesión</h2>
+                <button class="close-btn" id="close-login-modal">&times;</button>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">Correo Electrónico</label>
+                    <input type="email" id="login-email" required placeholder="tu@email.com">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Contraseña</label>
+                    <input type="password" id="login-password" required placeholder="••••••••">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-login">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Ingresar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Registro -->
+    <div class="modal" id="register-modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2>Crear Cuenta</h2>
+                <button class="close-btn" id="close-register-modal">&times;</button>
+            </div>
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="register-name">Nombre Completo</label>
+                    <input type="text" id="register-name" required placeholder="Juan Pérez">
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Correo Electrónico</label>
+                    <input type="email" id="register-email" required placeholder="tu@email.com">
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Contraseña</label>
+                    <input type="password" id="register-password" required placeholder="••••••••">
+                </div>
+                <div class="form-group">
+                    <label for="register-confirm">Confirmar Contraseña</label>
+                    <input type="password" id="register-confirm" required placeholder="••••••••">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-register">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Registrarse</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Variables globales
+            let currentDate = new Date();
+            let currentMonth = currentDate.getMonth();
+            let currentYear = currentDate.getFullYear();
+            let selectedDay = null;
+            let currentUser = null;
+            
+            // Elementos del DOM
+            const monthTitle = document.querySelector('.month-title');
+            const calendarGrid = document.querySelector('.calendar-grid');
+            const prevMonthBtn = document.getElementById('prev-month');
+            const nextMonthBtn = document.getElementById('next-month');
+            const newReservationBtn = document.getElementById('new-reservation');
+            const reservationModal = document.getElementById('reservation-modal');
+            const closeModalBtn = document.getElementById('close-modal');
+            const cancelReservationBtn = document.getElementById('cancel-reservation');
+            const reservationForm = document.getElementById('reservation-form');
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = {
+                'calendar': document.getElementById('calendar-tab'),
+                'reservations': document.getElementById('reservations-tab'),
+                'profile': document.getElementById('profile-tab')
+            };
+            const dayModal = document.getElementById('day-modal');
+            const closeDayModalBtn = document.getElementById('close-day-modal-btn');
+            const closeDayModalX = document.getElementById('close-day-modal');
+            const dayModalTitle = document.getElementById('day-modal-title');
+            const dayModalContent = document.getElementById('day-modal-content');
+            const loginBtn = document.getElementById('login-btn');
+            const registerBtn = document.getElementById('register-btn');
+            const userInfo = document.getElementById('user-info');
+            const usernameSpan = document.getElementById('username');
+            const userAvatar = document.getElementById('user-avatar');
+            const loginModal = document.getElementById('login-modal');
+            const closeLoginModal = document.getElementById('close-login-modal');
+            const cancelLogin = document.getElementById('cancel-login');
+            const loginForm = document.getElementById('login-form');
+            const registerModal = document.getElementById('register-modal');
+            const closeRegisterModal = document.getElementById('close-register-modal');
+            const cancelRegister = document.getElementById('cancel-register');
+            const registerForm = document.getElementById('register-form');
+            
+            // Datos de ejemplo (simularían datos de una base de datos)
+            let reservations = [
+                {
+                    id: 1,
+                    room: 'cra',
+                    date: formatDate(new Date(currentYear, currentMonth, 15)),
+                    time: '10:00-11:00',
+                    course: '4°A Matemáticas',
+                    user: 'Juan Pérez'
+                },
+                {
+                    id: 2,
+                    room: 'computacion',
+                    date: formatDate(new Date(currentYear, currentMonth, 16)),
+                    time: '14:00-15:00',
+                    course: '3°B Tecnología',
+                    user: 'Juan Pérez'
+                },
+                
+            ];
+            
+            // Funciones auxiliares
+            function formatDate(date) {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+            
+            function getWeekday(date) {
+                return date.getDay(); // 0=Domingo, 1=Lunes, ..., 6=Sábado
+            }
+            
+            function getDaysInMonth(year, month) {
+                return new Date(year, month + 1, 0).getDate();
+            }
+            
+            function getFirstDayOfMonth(year, month) {
+                return new Date(year, month, 1).getDay();
+            }
+            
+            // Inicializar el calendario
+            function initCalendar() {
+                renderCalendar(currentMonth, currentYear);
+                setupEventListeners();
+                checkAuthStatus();
+            }
+            
+            // Verificar estado de autenticación
+            function checkAuthStatus() {
+                // Verificar si hay un usuario en localStorage (simulación)
+                const storedUser = localStorage.getItem('calendarUser');
+                if (storedUser) {
+                    currentUser = JSON.parse(storedUser);
+                    updateUserInfo();
+                }
+                
+                if (currentUser) {
+                    // Usuario logueado
+                    loginBtn.style.display = 'none';
+                    registerBtn.style.display = 'none';
+                    userInfo.style.display = 'flex';
+                } else {
+                    // Usuario no logueado
+                    loginBtn.style.display = 'flex';
+                    registerBtn.style.display = 'flex';
+                    userInfo.style.display = 'none';
+                }
+            }
+            
+            // Actualizar información del usuario en la interfaz
+            function updateUserInfo() {
+                if (currentUser) {
+                    usernameSpan.textContent = currentUser.name;
+                    userAvatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.name)}&background=random`;
+                }
+            }
+            
+            // Renderizar el calendario
+            function renderCalendar(month, year) {
+                // Encabezados de los días
+                calendarGrid.innerHTML = `
+                    <div class="day-header weekend">Domingo</div>
+                    <div class="day-header">Lunes</div>
+                    <div class="day-header">Martes</div>
+                    <div class="day-header">Miércoles</div>
+                    <div class="day-header">Jueves</div>
+                    <div class="day-header">Viernes</div>
+                    <div class="day-header weekend">Sábado</div>
+                `;
+                
+                // Actualizar el título del mes
+                const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
+                                    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+                monthTitle.textContent = `${monthNames[month]} ${year}`;
+                
+                // Obtener el primer día del mes y el número de días en el mes
+                const firstDay = getFirstDayOfMonth(year, month);
+                const daysInMonth = getDaysInMonth(year, month);
+                
+                // Agregar días vacíos para alinear el primer día del mes
+                for (let i = 0; i < firstDay; i++) {
+                    const emptyDay = document.createElement('div');
+                    emptyDay.classList.add('calendar-day', 'empty-day');
+                    calendarGrid.appendChild(emptyDay);
+                }
+                
+                // Generar todos los días del mes
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const date = new Date(year, month, day);
+                    const weekday = getWeekday(date);
+                    const dayElement = document.createElement('div');
+                    dayElement.classList.add('calendar-day');
+                    
+                    // Marcar como fin de semana (sábado o domingo)
+                    if (weekday === 0 || weekday === 6) {
+                        dayElement.classList.add('weekend');
+                    }
+                    
+                    // Marcar el día actual
+                    if (day === currentDate.getDate() && month === currentDate.getMonth() && year === currentDate.getFullYear()) {
+                        dayElement.classList.add('today');
+                    }
+                    
+                    // Añadir el número del día
+                    const dayNumber = document.createElement('span');
+                    dayNumber.classList.add('day-number');
+                    dayNumber.textContent = day;
+                    dayElement.appendChild(dayNumber);
+                    
+                    // Formatear la fecha para comparar con las reservas
+                    const formattedDate = formatDate(date);
+                    
+                    // Añadir eventos/reservas para este día (solo si no es fin de semana)
+                    if (weekday !== 0 && weekday !== 6) {
+                        const dayReservations = reservations.filter(res => res.date === formattedDate);
+                        
+                        dayReservations.forEach(res => {
+                            const event = document.createElement('div');
+                            event.classList.add('event', res.room);
+                            event.textContent = `${res.time} - ${res.course.split(' ')[0]}`;
+                            event.title = `${res.time} - ${res.course} (${res.user})`;
+                            dayElement.appendChild(event);
+                            
+                            // Añadir indicador visual de la sala reservada
+                            const indicator = document.createElement('div');
+                            indicator.classList.add('room-indicator', res.room);
+                            dayElement.appendChild(indicator);
+                        });
+                    }
+                    
+                    // Hacer el día seleccionable solo si no es fin de semana
+                    if (weekday !== 0 && weekday !== 6) {
+                        dayElement.addEventListener('click', () => {
+                            selectedDay = date;
+                            showDayReservations(date);
+                        });
+                    }
+                    
+                    calendarGrid.appendChild(dayElement);
+                }
+            }
+            
+            // Mostrar reservas del día seleccionado
+            function showDayReservations(date) {
+                const formattedDate = formatDate(date);
+                const options = { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric',
+                    timeZone: 'UTC'
+                };
+                const formattedDateStr = date.toLocaleDateString('es-ES', options);
+                
+                dayModalTitle.textContent = `Horarios para ${formattedDateStr}`;
+                dayModalContent.innerHTML = '';
+                
+                // Obtener todas las reservas para este día
+                const dayReservations = reservations.filter(res => res.date === formattedDate);
+                
+                // Mostrar horarios para CRA
+                const craTitle = document.createElement('div');
+                craTitle.classList.add('room-title', 'cra');
+                craTitle.innerHTML = `<i class="fas fa-book"></i> CRA`;
+                dayModalContent.appendChild(craTitle);
+                
+                const craReservations = dayReservations.filter(res => res.room === 'cra');
+                if (craReservations.length === 0) {
+                    const noRes = document.createElement('p');
+                    noRes.textContent = 'No hay reservas para el CRA este día';
+                    dayModalContent.appendChild(noRes);
+                } else {
+                    craReservations.forEach(res => {
+                        const resElement = document.createElement('div');
+                        resElement.classList.add('reservation-item', res.room);
+                        resElement.innerHTML = `
+                            <p><strong>Horario:</strong> ${res.time}</p>
+                            <p><strong>Curso:</strong> ${res.course}</p>
+                            <p><strong>Profesor:</strong> ${res.user}</p>
+                        `;
+                        dayModalContent.appendChild(resElement);
+                    });
+                }
+                
+                // Mostrar horarios para Sala de Computación
+                const compTitle = document.createElement('div');
+                compTitle.classList.add('room-title', 'computacion');
+                compTitle.innerHTML = `<i class="fas fa-laptop"></i> Sala de Computación`;
+                dayModalContent.appendChild(compTitle);
+                
+                const compReservations = dayReservations.filter(res => res.room === 'computacion');
+                if (compReservations.length === 0) {
+                    const noRes = document.createElement('p');
+                    noRes.textContent = 'No hay reservas para la Sala de Computación este día';
+                    dayModalContent.appendChild(noRes);
+                } else {
+                    compReservations.forEach(res => {
+                        const resElement = document.createElement('div');
+                        resElement.classList.add('reservation-item', res.room);
+                        resElement.innerHTML = `
+                            <p><strong>Horario:</strong> ${res.time}</p>
+                            <p><strong>Curso:</strong> ${res.course}</p>
+                            <p><strong>Profesor:</strong> ${res.user}</p>
+                        `;
+                        dayModalContent.appendChild(resElement);
+                    });
+                }
+                
+                // Mostrar modal
+                dayModal.style.display = 'flex';
+            }
+            
+            // Configurar event listeners
+            function setupEventListeners() {
+                // Navegación del mes
+                prevMonthBtn.addEventListener('click', () => {
+                    currentMonth--;
+                    if (currentMonth < 0) {
+                        currentMonth = 11;
+                        currentYear--;
+                    }
+                    renderCalendar(currentMonth, currentYear);
+                });
+                
+                nextMonthBtn.addEventListener('click', () => {
+                    currentMonth++;
+                    if (currentMonth > 11) {
+                        currentMonth = 0;
+                        currentYear++;
+                    }
+                    renderCalendar(currentMonth, currentYear);
+                });
+                
+                // Nueva reserva
+                newReservationBtn.addEventListener('click', () => {
+                    if (!currentUser) {
+                        alert('Debes iniciar sesión para hacer reservas');
+                        loginModal.style.display = 'flex';
+                        return;
+                    }
+                    selectedDay = new Date();
+                    openReservationModal();
+                });
+                
+                // Modal de reserva
+                closeModalBtn.addEventListener('click', closeReservationModal);
+                cancelReservationBtn.addEventListener('click', closeReservationModal);
+                
+                // Modal de horarios del día
+                closeDayModalBtn.addEventListener('click', () => dayModal.style.display = 'none');
+                closeDayModalX.addEventListener('click', () => dayModal.style.display = 'none');
+                
+                // Formulario de reserva
+                reservationForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    if (!currentUser) {
+                        alert('Debes iniciar sesión para hacer reservas');
+                        loginModal.style.display = 'flex';
+                        return;
+                    }
+                    
+                    const room = document.getElementById('room').value;
+                    const date = document.getElementById('reservation-date').value;
+                    const time = document.getElementById('selected-time').value;
+                    const course = document.getElementById('course').value;
+                    
+                    if (!time) {
+                        alert('Por favor seleccione un bloque horario');
+                        return;
+                    }
+                    
+                    const isAvailable = !reservations.some(res => 
+                        res.date === date && res.time === time && res.room === room
+                    );
+                    
+                    if (isAvailable) {
+                        const newReservation = {
+                            id: Date.now(),
+                            room,
+                            date,
+                            time,
+                            course,
+                            user: currentUser.name
+                        };
+                        
+                        reservations.push(newReservation);
+                        renderCalendar(currentMonth, currentYear);
+                        closeReservationModal();
+                        alert('Reserva creada exitosamente!');
+                        
+                        if (document.querySelector('.tab.active').dataset.tab === 'reservations') {
+                            loadUserReservations();
+                        } else {
+                            const reservationsTab = document.querySelector('.tab[data-tab="reservations"]');
+                            reservationsTab.addEventListener('click', function onReservationsTabClick() {
+                                loadUserReservations();
+                                reservationsTab.removeEventListener('click', onReservationsTabClick);
+                            }, { once: true });
+                        }
+                    } else {
+                        alert('El horario seleccionado no está disponible (ya está reservado en esta sala)');
+                    }
+                });
+
+                // Pestañas
+                tabs.forEach(tab => {
+                    tab.addEventListener('click', function() {
+                        const tabName = this.dataset.tab;
+                        
+                        tabs.forEach(t => t.classList.remove('active'));
+                        this.classList.add('active');
+                        
+                        Object.values(tabContents).forEach(content => {
+                            content.style.display = 'none';
+                        });
+                        tabContents[tabName].style.display = 'block';
+                        
+                        if (tabName === 'reservations') {
+                            loadUserReservations();
+                        }
+                        
+                        if (tabName === 'profile') {
+                            loadUserProfile();
+                        }
+                    });
+                });
+                
+                // Login
+                loginBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    loginModal.style.display = 'flex';
+                });
+                
+                closeLoginModal.addEventListener('click', () => loginModal.style.display = 'none');
+                cancelLogin.addEventListener('click', () => loginModal.style.display = 'none');
+                
+                loginForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const email = document.getElementById('login-email').value;
+                    const password = document.getElementById('login-password').value;
+                    
+                    // Simulación de login (en un caso real, verificarías con el servidor)
+                    if (email && password) {
+                        // Usuario de prueba
+                        currentUser = {
+                            id: 1,
+                            name: "Juan Pérez",
+                            email: email,
+                            role: "teacher"
+                        };
+                        
+                        // Guardar en localStorage (simulación)
+                        localStorage.setItem('calendarUser', JSON.stringify(currentUser));
+                        
+                        updateUserInfo();
+                        checkAuthStatus();
+                        loginModal.style.display = 'none';
+                        
+                        // Limpiar formulario
+                        this.reset();
+                        
+                        alert(`Bienvenido, ${currentUser.name}!`);
+                    } else {
+                        alert('Por favor ingresa email y contraseña');
+                    }
+                });
+                
+                // Registro
+                registerBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    registerModal.style.display = 'flex';
+                });
+                
+                closeRegisterModal.addEventListener('click', () => registerModal.style.display = 'none');
+                cancelRegister.addEventListener('click', () => registerModal.style.display = 'none');
+                
+                registerForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const name = document.getElementById('register-name').value;
+                    const email = document.getElementById('register-email').value;
+                    const password = document.getElementById('register-password').value;
+                    const confirm = document.getElementById('register-confirm').value;
+                    
+                    if (password !== confirm) {
+                        alert('Las contraseñas no coinciden');
+                        return;
+                    }
+                    
+                    // Simulación de registro (en un caso real, enviarías al servidor)
+                    currentUser = {
+                        id: Date.now(),
+                        name: name,
+                        email: email,
+                        role: "teacher"
+                    };
+                    
+                    // Guardar en localStorage (simulación)
+                    localStorage.setItem('calendarUser', JSON.stringify(currentUser));
+                    
+                    updateUserInfo();
+                    checkAuthStatus();
+                    registerModal.style.display = 'none';
+                    
+                    // Limpiar formulario
+                    this.reset();
+                    
+                    alert(`¡Bienvenido ${currentUser.name}! Tu cuenta ha sido creada.`);
+                });
+                
+                // Logout
+                userInfo.addEventListener('click', function() {
+                    if (currentUser && confirm(`¿Cerrar sesión como ${currentUser.name}?`)) {
+                        currentUser = null;
+                        localStorage.removeItem('calendarUser');
+                        checkAuthStatus();
+                        alert('Has cerrado sesión correctamente');
+                    }
+                });
+            }
+            
+            // Abrir modal de reserva
+            function openReservationModal() {
+                if (selectedDay) {
+                    const formattedDate = formatDate(selectedDay);
+                    document.getElementById('reservation-date').value = formattedDate;
+                }
+                
+                document.getElementById('room').value = '';
+                document.getElementById('selected-time').value = '';
+                document.getElementById('course').value = '';
+                
+                const timeSlotsContainer = document.getElementById('time-slots-container');
+                timeSlotsContainer.innerHTML = '';
+                
+                const timeSlots = [
+                    '08:00-09:00', '09:00-10:00', '10:00-11:00',
+                    '11:00-12:00', '12:00-13:00', '13:00-14:00',
+                    '14:00-15:00', '15:00-16:00', '16:00-17:00'
+                ];
+                
+                timeSlots.forEach(time => {
+                    const slot = document.createElement('div');
+                    slot.classList.add('time-slot');
+                    slot.dataset.time = time;
+                    slot.textContent = time;
+                    timeSlotsContainer.appendChild(slot);
+                    
+                    slot.addEventListener('click', function() {
+                        if (!this.classList.contains('occupied')) {
+                            document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+                            this.classList.add('selected');
+                            document.getElementById('selected-time').value = this.dataset.time;
+                        }
+                    });
+                });
+                
+                reservationModal.style.display = 'flex';
+                
+                document.getElementById('room').addEventListener('change', updateTimeSlotsAvailability);
+                document.getElementById('reservation-date').addEventListener('change', updateTimeSlotsAvailability);
+                
+                updateTimeSlotsAvailability();
+            }
+            
+            // Cerrar modal de reserva
+            function closeReservationModal() {
+                reservationModal.style.display = 'none';
+            }
+            
+            // Actualizar disponibilidad de bloques horarios
+            function updateTimeSlotsAvailability() {
+                const date = document.getElementById('reservation-date').value;
+                const room = document.getElementById('room').value;
+                
+                if (date) {
+                    document.querySelectorAll('.time-slot').forEach(slot => {
+                        const time = slot.dataset.time;
+                        
+                        slot.classList.remove('occupied', 'selected', 'cra', 'computacion');
+                        
+                        const reservationsForThisTime = reservations.filter(res => 
+                            res.date === date && res.time === time
+                        );
+                        
+                        if (reservationsForThisTime.length > 0) {
+                            slot.classList.add('occupied');
+                            
+                            reservationsForThisTime.forEach(res => {
+                                slot.classList.add(res.room);
+                            });
+                            
+                            const reservedBy = reservationsForThisTime.map(res => 
+                                `${res.room === 'cra' ? 'CRA' : 'Computación'}: ${res.course} (${res.user})`
+                            ).join('\n');
+                            slot.title = `Ocupado por:\n${reservedBy}`;
+                        } else {
+                            slot.classList.remove('occupied');
+                            slot.title = 'Disponible';
+                        }
+                    });
+                }
+            }
+            
+            // Cargar reservas del usuario
+            function loadUserReservations() {
+                if (!currentUser) {
+                    document.getElementById('reservations-list').innerHTML = '<p>Debes iniciar sesión para ver tus reservas</p>';
+                    return;
+                }
+                
+                const today = formatDate(new Date());
+                const userReservations = reservations.filter(res => 
+                    res.user === currentUser.name && res.date >= today
+                ).sort((a, b) => {
+                    if (a.date === b.date) {
+                        return a.time.localeCompare(b.time);
+                    }
+                    return a.date.localeCompare(b.date);
+                });
+                
+                const reservationsList = document.getElementById('reservations-list');
+                
+                if (userReservations.length === 0) {
+                    reservationsList.innerHTML = '<p>No tienes reservas registradas.</p>';
+                    return;
+                }
+                
+                reservationsList.innerHTML = '';
+                
+                let currentDate = null;
+                
+                userReservations.forEach(res => {
+                    const dateObj = new Date(res.date);
+                    const formattedDate = dateObj.toLocaleDateString('es-ES', { 
+                        weekday: 'long', 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric',
+                        timeZone: 'UTC'
+                    });
+                    
+                    if (!currentDate || currentDate !== res.date) {
+                        currentDate = res.date;
+                        const dateHeader = document.createElement('h3');
+                        dateHeader.style.marginTop = '20px';
+                        dateHeader.style.marginBottom = '10px';
+                        dateHeader.style.color = 'var(--dark)';
+                        dateHeader.textContent = formattedDate;
+                        reservationsList.appendChild(dateHeader);
+                    }
+                    
+                    const resElement = document.createElement('div');
+                    resElement.classList.add('reservation-item', res.room);
+                    
+                    const roomName = res.room === 'cra' ? 'CRA' : 'Sala de Computación';
+                    
+                    resElement.innerHTML = `
+                        <p><strong>Sala:</strong> ${roomName}</p>
+                        <p><strong>Horario:</strong> ${res.time}</p>
+                        <p><strong>Curso:</strong> ${res.course}</p>
+                        <button class="btn btn-secondary" style="margin-top: 10px;" data-id="${res.id}">
+                            <i class="fas fa-trash"></i> Cancelar Reserva
+                        </button>
+                    `;
+                    
+                    reservationsList.appendChild(resElement);
+                });
+                
+                document.querySelectorAll('[data-id]').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const resId = parseInt(this.dataset.id);
+                        if (confirm('¿Estás seguro de que deseas cancelar esta reserva?')) {
+                            reservations = reservations.filter(res => res.id !== resId);
+                            loadUserReservations();
+                            renderCalendar(currentMonth, currentYear);
+                            alert('Reserva cancelada exitosamente');
+                        }
+                    });
+                });
+            }
+            
+            // Cargar perfil del usuario
+            function loadUserProfile() {
+                const profileInfo = document.querySelector('.profile-info');
+                
+                if (!currentUser) {
+                    profileInfo.innerHTML = `
+                        <div style="text-align: center; padding: 20px;">
+                            <p>Debes iniciar sesión para ver tu perfil</p>
+                            <button class="btn btn-primary" id="login-from-profile">
+                                <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+                            </button>
+                        </div>
+                    `;
+                    
+                    document.getElementById('login-from-profile')?.addEventListener('click', () => {
+                        loginModal.style.display = 'flex';
+                    });
+                    return;
+                }
+                
+                profileInfo.innerHTML = `
+                    <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                        <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.name)}&background=random" 
+                             alt="Usuario" style="width: 80px; height: 80px; border-radius: 50%; margin-right: 20px;">
+                        <div>
+                            <h3>${currentUser.name}</h3>
+                            <p>Profesor</p>
+                        </div>
+                    </div>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                        <h4 style="margin-bottom: 10px;">Información de Contacto</h4>
+                        <p><strong>Email:</strong> ${currentUser.email}</p>
+                        <p><strong>Rol:</strong> ${currentUser.role === 'teacher' ? 'Profesor' : 'Administrador'}</p>
+                    </div>
+                    <button class="btn btn-secondary" style="margin-top: 20px;" id="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                    </button>
+                `;
+                
+                document.getElementById('logout-btn')?.addEventListener('click', () => {
+                    if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
+                        currentUser = null;
+                        localStorage.removeItem('calendarUser');
+                        checkAuthStatus();
+                        alert('Has cerrado sesión correctamente');
+                        loadUserProfile();
+                    }
+                });
+            }
+            
+            // Inicializar la aplicación
+            initCalendar();
+        });
+    </script>
+</body>
+</html>

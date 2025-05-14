@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - Sistema de Reservas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2ecc71;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .auth-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .auth-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .auth-header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .auth-header p {
+            opacity: 0.9;
+        }
+
+        .auth-body {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            outline: none;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7f8c8d;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(41, 128, 185, 0.3);
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .auth-footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .auth-footer a:hover {
+            color: #2980b9;
+            text-decoration: underline;
+        }
+
+        .success-message {
+            color: var(--secondary);
+            background-color: rgba(46, 204, 113, 0.1);
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .error-message {
+            color: var(--danger);
+            background-color: rgba(231, 76, 60, 0.1);
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .password-strength {
+            margin-top: 5px;
+            height: 5px;
+            background: #eee;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .password-strength-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--danger);
+            transition: all 0.3s ease;
+        }
+
+        .password-requirements {
+            margin-top: 5px;
+            font-size: 13px;
+            color: #7f8c8d;
+        }
+
+        .password-requirements ul {
+            list-style-type: none;
+            padding-left: 5px;
+        }
+
+        .password-requirements li {
+            margin-bottom: 3px;
+        }
+
+        .password-requirements li.valid {
+            color: var(--secondary);
+        }
+
+        .password-requirements li.valid::before {
+            content: "✓ ";
+        }
+
+        .password-requirements li.invalid::before {
+            content: "✗ ";
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        @media (max-width: 480px) {
+            .auth-container {
+                margin: 20px;
+                border-radius: 10px;
+            }
+            
+            .auth-header {
+                padding: 20px;
+            }
+            
+            .auth-body {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-header">
+            <h1>Crear Cuenta</h1>
+            <p>Regístrate para gestionar reservas de salas</p>
+        </div>
+        
+        <div class="auth-body">
+            <div class="success-message" id="success-message">
+                <i class="fas fa-check-circle"></i> <span id="success-text">Registro exitoso! Redirigiendo...</span>
+            </div>
+            
+            <div class="error-message" id="error-message">
+                <i class="fas fa-exclamation-circle"></i> <span id="error-text">Por favor completa todos los campos</span>
+            </div>
+            
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="fullname">Nombre Completo</label>
+                    <div class="input-group">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="fullname" placeholder="Juan Pérez" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="rut">RUT</label>
+                    <div class="input-group">
+                        <i class="fas fa-id-card"></i>
+                        <input type="text" id="rut" placeholder="12.345.678-9" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Correo Electrónico</label>
+                    <div class="input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="email" placeholder="tu@colegio.cl" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Teléfono</label>
+                    <div class="input-group">
+                        <i class="fas fa-phone"></i>
+                        <input type="tel" id="phone" placeholder="+56 9 1234 5678" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="role">Rol</label>
+                    <div class="input-group">
+                        <i class="fas fa-user-tag"></i>
+                        <select id="role" required>
+                            <option value="">Selecciona tu rol</option>
+                            <option value="profesor">Profesor</option>
+                            <option value="administrativo">Personal Administrativo</option>
+                            <option value="directivo">Directivo</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Contraseña</label>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" placeholder="••••••••" required>
+                    </div>
+                    <div class="password-strength">
+                        <div class="password-strength-bar" id="password-strength-bar"></div>
+                    </div>
+                    <div class="password-requirements">
+                        <ul>
+                            <li class="invalid" id="length-req">Mínimo 8 caracteres</li>
+                            <li class="invalid" id="uppercase-req">Al menos una mayúscula</li>
+                            <li class="invalid" id="number-req">Al menos un número</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirm-password">Confirmar Contraseña</label>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="confirm-password" placeholder="••••••••" required>
+                    </div>
+                    <small id="password-match" style="color: var(--danger); display: none;">
+                        <i class="fas fa-exclamation-circle"></i> Las contraseñas no coinciden
+                    </small>
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary" id="register-btn">
+                        <i class="fas fa-user-plus"></i> Registrarse
+                    </button>
+                </div>
+            </form>
+            
+            <div class="auth-footer">
+                <p>¿Ya tienes una cuenta? <a href="login.html">Inicia sesión aquí</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const registerForm = document.getElementById('register-form');
+            const successMessage = document.getElementById('success-message');
+            const errorMessage = document.getElementById('error-message');
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('confirm-password');
+            const passwordMatch = document.getElementById('password-match');
+            const passwordStrengthBar = document.getElementById('password-strength-bar');
+            const lengthReq = document.getElementById('length-req');
+            const uppercaseReq = document.getElementById('uppercase-req');
+            const numberReq = document.getElementById('number-req');
+            const registerBtn = document.getElementById('register-btn');
+            
+            // Obtener los valores de las variables CSS
+            const rootStyles = getComputedStyle(document.documentElement);
+            const dangerColor = rootStyles.getPropertyValue('--danger').trim();
+            const warningColor = rootStyles.getPropertyValue('--warning').trim();
+            const secondaryColor = rootStyles.getPropertyValue('--secondary').trim();
+            
+            // Validar contraseña en tiempo real
+            passwordInput.addEventListener('input', function() {
+                const password = this.value;
+                let strength = 0;
+                
+                // Validar longitud
+                if (password.length >= 8) {
+                    strength += 33;
+                    lengthReq.classList.remove('invalid');
+                    lengthReq.classList.add('valid');
+                } else {
+                    lengthReq.classList.remove('valid');
+                    lengthReq.classList.add('invalid');
+                }
+                
+                // Validar mayúsculas
+                if (/[A-Z]/.test(password)) {
+                    strength += 33;
+                    uppercaseReq.classList.remove('invalid');
+                    uppercaseReq.classList.add('valid');
+                } else {
+                    uppercaseReq.classList.remove('valid');
+                    uppercaseReq.classList.add('invalid');
+                }
+                
+                // Validar números
+                if (/\d/.test(password)) {
+                    strength += 34;
+                    numberReq.classList.remove('invalid');
+                    numberReq.classList.add('valid');
+                } else {
+                    numberReq.classList.remove('valid');
+                    numberReq.classList.add('invalid');
+                }
+                
+                // Actualizar barra de fortaleza
+                passwordStrengthBar.style.width = strength + '%';
+                
+                // Cambiar color según fortaleza
+                if (strength < 50) {
+                    passwordStrengthBar.style.backgroundColor = dangerColor;
+                } else if (strength < 80) {
+                    passwordStrengthBar.style.backgroundColor = warningColor;
+                } else {
+                    passwordStrengthBar.style.backgroundColor = secondaryColor;
+                }
+            });
+            
+            // Validar coincidencia de contraseñas
+            confirmPasswordInput.addEventListener('input', function() {
+                if (passwordInput.value !== this.value && this.value.length > 0) {
+                    passwordMatch.style.display = 'block';
+                    registerBtn.disabled = true;
+                } else {
+                    passwordMatch.style.display = 'none';
+                    registerBtn.disabled = false;
+                }
+            });
+            
+            // Manejar envío del formulario
+            registerForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const fullname = document.getElementById('fullname').value;
+                const rut = document.getElementById('rut').value;
+                const email = document.getElementById('email').value;
+                const phone = document.getElementById('phone').value;
+                const role = document.getElementById('role').value;
+                const password = passwordInput.value;
+                const confirmPassword = confirmPasswordInput.value;
+                
+                // Validación simple
+                if (!fullname || !rut || !email || !phone || !role || !password || !confirmPassword) {
+                    errorMessage.style.display = 'block';
+                    errorMessage.textContent = 'Por favor completa todos los campos';
+                    return;
+                }
+                
+                if (password !== confirmPassword) {
+                    errorMessage.style.display = 'block';
+                    errorMessage.textContent = 'Las contraseñas no coinciden';
+                    return;
+                }
+                
+                if (password.length < 8) {
+                    errorMessage.style.display = 'block';
+                    errorMessage.textContent = 'La contraseña debe tener al menos 8 caracteres';
+                    return;
+                }
+                
+                // Simular registro exitoso
+                successMessage.style.display = 'block';
+                errorMessage.style.display = 'none';
+                registerForm.reset();
+                
+                // Redirigir después de 2 segundos
+                setTimeout(function() {
+                    window.location.href = "login.html";
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>
